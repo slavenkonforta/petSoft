@@ -1,15 +1,20 @@
 'use client';
 
 import { usePetContext } from '@/contexts/pet-context-provider';
+import { useSearchContext } from '@/contexts/search-context-provider';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
 export default function PetList() {
   const { pets, selectedPetId, handleSelectedPetIdChange } = usePetContext();
+  const { searchText } = useSearchContext();
+  const filteredPets = pets.filter((pet) =>
+    pet.name.toLowerCase().includes(searchText.trim().toLowerCase())
+  );
 
   return (
-    <ul className='border-light border-b bg-white'>
-      {pets.map((pet) => (
+    <ul className='border-b border-light bg-white'>
+      {filteredPets.map((pet) => (
         <li key={pet.id}>
           <button
             onClick={() => handleSelectedPetIdChange(pet.id)}
