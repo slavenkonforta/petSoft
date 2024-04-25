@@ -36,6 +36,8 @@ function EmptyView() {
 }
 
 function TopBar({ pet }: PetProps) {
+  const { handleCheckoutPet } = usePetContext();
+
   return (
     <div className='flex items-center border-b border-light bg-white px-8 py-5'>
       <Image
@@ -46,9 +48,12 @@ function TopBar({ pet }: PetProps) {
         className='h-[75px] w-[75px] rounded-full object-cover'
       />
       <h2 className='ml-5 text-3xl font-semibold leading-7'>{pet.name}</h2>
+
       <div className='ml-auto space-x-2'>
         <PetButton actionType='edit'>Edit</PetButton>
-        <PetButton actionType='checkout'>Checkout</PetButton>
+        <PetButton onClick={() => handleCheckoutPet(pet.id)} actionType='checkout'>
+          Checkout
+        </PetButton>
       </div>
     </div>
   );
