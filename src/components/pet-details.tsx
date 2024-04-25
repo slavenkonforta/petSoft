@@ -3,6 +3,7 @@
 import { usePetContext } from '@/contexts/pet-context-provider';
 import { Pet } from '@/lib/types';
 import Image from 'next/image';
+import PetButton from './pet-button';
 
 export default function PetDetails() {
   const { selectedPet } = usePetContext();
@@ -36,7 +37,7 @@ function EmptyView() {
 
 function TopBar({ pet }: PetProps) {
   return (
-    <div className='border-light flex items-center border-b bg-white px-8 py-5'>
+    <div className='flex items-center border-b border-light bg-white px-8 py-5'>
       <Image
         src={pet.imageUrl}
         alt='Selected pet image'
@@ -45,6 +46,10 @@ function TopBar({ pet }: PetProps) {
         className='h-[75px] w-[75px] rounded-full object-cover'
       />
       <h2 className='ml-5 text-3xl font-semibold leading-7'>{pet.name}</h2>
+      <div className='ml-auto space-x-2'>
+        <PetButton actionType='edit'>Edit</PetButton>
+        <PetButton actionType='checkout'>Checkout</PetButton>
+      </div>
     </div>
   );
 }
@@ -66,7 +71,7 @@ function OtherInfo({ pet }: PetProps) {
 
 function Notes({ pet }: PetProps) {
   return (
-    <section className='border-light mx-8 mb-9 flex-1 rounded-md border bg-white px-7 py-5'>
+    <section className='mx-8 mb-9 flex-1 rounded-md border border-light bg-white px-7 py-5'>
       {pet.notes}
     </section>
   );

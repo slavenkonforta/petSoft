@@ -1,5 +1,6 @@
 import Branding from '@/components/branding';
 import ContentBlock from '@/components/content-block';
+import PetButton from '@/components/pet-button';
 import PetDetails from '@/components/pet-details';
 import PetList from '@/components/pet-list';
 import SearchForm from '@/components/search-form';
@@ -21,9 +22,13 @@ export default function Page() {
           <SearchForm />
         </div>
 
-        <div className='md:col-span-1 md:col-start-1 md:row-span-full md:row-start-2'>
+        <div className='relative md:col-span-1 md:col-start-1 md:row-span-full md:row-start-2'>
           <ContentBlock>
             <PetList />
+
+            <div className='absolute bottom-4 right-4'>
+              <PetButton actionType='add' />
+            </div>
           </ContentBlock>
         </div>
 
