@@ -5,6 +5,7 @@ import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog';
 import PetForm from './pet-form';
 import { useState } from 'react';
+import { flushSync } from 'react-dom';
 
 type PetButtonProps = {
   children?: React.ReactNode;
@@ -44,7 +45,9 @@ export default function PetButton({ children, actionType, onClick, disabled }: P
         <PetForm
           actionType={actionType}
           onFormSubmit={() => {
-            setIsFormOpen(false);
+            flushSync(() => {
+              setIsFormOpen(false);
+            });
           }}
         />
       </DialogContent>

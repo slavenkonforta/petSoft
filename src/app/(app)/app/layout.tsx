@@ -21,7 +21,7 @@ export default async function Layout({ children }: LayoutProps) {
         <AppHeader />
 
         <SearchContextProvider>
-          <PetContextProvider pets={pets}>{children}</PetContextProvider>
+          <PetContextProvider data={pets}>{children}</PetContextProvider>
         </SearchContextProvider>
 
         <AppFooter />
