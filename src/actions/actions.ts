@@ -1,12 +1,12 @@
 'use server';
 
-import { auth, signIn, signOut } from '@/lib/auth';
+import { signIn, signOut } from '@/lib/auth';
 import prisma from '@/lib/db';
 import { sleep } from '@/lib/utils';
 import { petFormSchema, petIdSchema } from '@/lib/validations';
 import { revalidatePath } from 'next/cache';
 import bcrypt from 'bcryptjs';
-import { redirect } from 'next/navigation';
+import { checkAuth, getPetById } from '@/lib/server-utils';
 
 // --- user actions ---
 export async function logIn(formData: FormData) {
@@ -35,10 +35,7 @@ export async function signUp(formData: FormData) {
 export async function addPet(petData: unknown) {
   await sleep(1000);
 
-  const session = await auth();
-  if (!session?.user) {
-    redirect('/login');
-  }
+  const session = await checkAuth();
   const validatedPetData = petFormSchema.safeParse(petData);
   if (!validatedPetData.success) {
     return {
@@ -67,12 +64,26 @@ export async function addPet(petData: unknown) {
 export async function editPet(petId: unknown, petData: unknown) {
   await sleep(1000);
 
+  const session = await checkAuth();
+
   const validatedPetId = petIdSchema.safeParse(petId);
   const validatedPetData = petFormSchema.safeParse(petData);
 
   if (!validatedPetData.success || !validatedPetId.success) {
     return {
       message: 'Invalid pet data',
+    };
+  }
+
+  const pet = await getPetById(validatedPetId.data);
+  if (!pet) {
+    return {
+      message: 'Pet not found',
+    };
+  }
+  if (pet.userId !== session.user.id) {
+    return {
+      message: 'Unauthorized',
     };
   }
 
@@ -95,11 +106,24 @@ export async function editPet(petId: unknown, petData: unknown) {
 export async function deletePet(petId: unknown) {
   await sleep(1000);
 
-  const validatedPetId = petIdSchema.safeParse(petId);
+  const session = await checkAuth();
 
+  const validatedPetId = petIdSchema.safeParse(petId);
   if (!validatedPetId.success) {
     return {
       message: 'Invalid pet data',
+    };
+  }
+
+  const pet = await getPetById(validatedPetId.data);
+  if (!pet) {
+    return {
+      message: 'Pet not found',
+    };
+  }
+  if (pet.userId !== session.user.id) {
+    return {
+      message: 'Unauthorized',
     };
   }
 
