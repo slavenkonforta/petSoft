@@ -60,6 +60,18 @@ const config = {
 
       return false;
     },
+    jwt: async ({ token, user }) => {
+      if (user && user.id) {
+        // on sign in
+        token.userId = user.id;
+      }
+      return token;
+    },
+    session: async ({ session, token }) => {
+      session.user.id = token.userId;
+
+      return session;
+    },
   },
 } satisfies NextAuthConfig;
 
