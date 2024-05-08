@@ -15,12 +15,12 @@ const config = {
   providers: [
     CredentialsProvider({
       async authorize(credentials) {
-        const validatedFormDataObject = authSchema.safeParse(credentials);
-        if (!validatedFormDataObject.success) {
+        const validatedFormData = authSchema.safeParse(credentials);
+        if (!validatedFormData.success) {
           return null;
         }
         // runs on login
-        const { email, password } = validatedFormDataObject.data;
+        const { email, password } = validatedFormData.data;
 
         const user = await getUserByEmail(email);
         if (!user) {
@@ -40,7 +40,6 @@ const config = {
   ],
   callbacks: {
     authorized: async ({ auth, request }) => {
-      console.log('authorized callback');
       // runs on every request with middleware
       const isLoggedIn = !!auth?.user;
       const isTryingToAccessApp = request.nextUrl.pathname.includes('/app');
@@ -53,7 +52,14 @@ const config = {
       }
 
       if (isLoggedIn && !isTryingToAccessApp) {
-        return Response.redirect(new URL('/app/dashboard', request.nextUrl));
+        if (
+          request.nextUrl.pathname.includes('/login') ||
+          request.nextUrl.pathname.includes('/signup')
+        ) {
+          return Response.redirect(new URL('/payment', request.nextUrl));
+        }
+
+        return true;
       }
 
       if (!isLoggedIn && !isTryingToAccessApp) {
@@ -69,7 +75,7 @@ const config = {
       }
       return token;
     },
-    session: async ({ session, token }) => {
+    session: ({ session, token }) => {
       session.user.id = token.userId;
 
       return session;
