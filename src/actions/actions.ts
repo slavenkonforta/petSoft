@@ -7,22 +7,49 @@ import { authSchema, petFormSchema, petIdSchema } from '@/lib/validations';
 import { revalidatePath } from 'next/cache';
 import bcrypt from 'bcryptjs';
 import { checkAuth, getPetById } from '@/lib/server-utils';
+import { Prisma } from '@prisma/client';
+import { AuthError } from 'next-auth';
+import { redirect } from 'next/navigation';
 
 // --- user actions ---
-export async function logIn(formData: unknown) {
+export async function logIn(prevState: unknown, formData: unknown) {
+  await sleep(1000);
+
   if (!(formData instanceof FormData)) {
     return {
       message: 'Invalid form data',
     };
   }
-  await signIn('credentials', formData);
+
+  try {
+    await signIn('credentials', formData);
+  } catch (error) {
+    if (error instanceof AuthError) {
+      switch (error.type) {
+        case 'CredentialsSignin': {
+          return {
+            message: 'Invalid credentials',
+          };
+        }
+        default: {
+          return {
+            message: 'Error. Failed to log in',
+          };
+        }
+      }
+    }
+    throw error; // nextjs redirects throws error, so we need to rethrow it
+  }
 }
 
 export async function logOut() {
+  await sleep(1000);
   await signOut({ redirectTo: '/' });
 }
 
-export async function signUp(formData: unknown) {
+export async function signUp(prevState: unknown, formData: unknown) {
+  await sleep(1000);
+
   if (!(formData instanceof FormData)) {
     return {
       message: 'Invalid form data',
@@ -38,12 +65,20 @@ export async function signUp(formData: unknown) {
   const { email, password } = validatedFormData.data;
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  await prisma.user.create({
-    data: {
-      email,
-      hashedPassword,
-    },
-  });
+  try {
+    await prisma.user.create({
+      data: {
+        email,
+        hashedPassword,
+      },
+    });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      return {
+        message: 'Email already exists.',
+      };
+    }
+  }
 
   await signIn('credentials', formData);
 }
