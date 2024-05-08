@@ -1,7 +1,8 @@
 import NextAuth, { NextAuthConfig } from 'next-auth';
-import Credentials from 'next-auth/providers/credentials';
+import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { getUserByEmail } from './server-utils';
+import { authSchema } from './validations';
 
 const config = {
   pages: {
@@ -12,10 +13,14 @@ const config = {
   //     strategy: 'jwt',
   //   },
   providers: [
-    Credentials({
+    CredentialsProvider({
       async authorize(credentials) {
+        const validatedFormDataObject = authSchema.safeParse(credentials);
+        if (!validatedFormDataObject.success) {
+          return null;
+        }
         // runs on login
-        const { email, password } = credentials;
+        const { email, password } = validatedFormDataObject.data;
 
         const user = await getUserByEmail(email);
         if (!user) {
@@ -34,7 +39,8 @@ const config = {
     }),
   ],
   callbacks: {
-    authorized: ({ auth, request }) => {
+    authorized: async ({ auth, request }) => {
+      console.log('authorized callback');
       // runs on every request with middleware
       const isLoggedIn = !!auth?.user;
       const isTryingToAccessApp = request.nextUrl.pathname.includes('/app');
@@ -71,4 +77,9 @@ const config = {
   },
 } satisfies NextAuthConfig;
 
-export const { auth, signIn, signOut } = NextAuth(config);
+export const {
+  auth,
+  signIn,
+  signOut,
+  handlers: { GET, POST },
+} = NextAuth(config);
