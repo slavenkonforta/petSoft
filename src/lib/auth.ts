@@ -3,6 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import bcrypt from 'bcryptjs';
 import { getUserByEmail } from './server-utils';
 import { authSchema } from './validations';
+import { NextResponse } from 'next/server';
 
 const config = {
   pages: {
@@ -56,7 +57,7 @@ const config = {
           request.nextUrl.pathname.includes('/login') ||
           request.nextUrl.pathname.includes('/signup')
         ) {
-          return Response.redirect(new URL('/payment', request.nextUrl));
+          return NextResponse.redirect(new URL('/payment', request.nextUrl));
         }
 
         return true;
