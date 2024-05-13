@@ -2,7 +2,6 @@
 
 import { signIn, signOut } from '@/lib/auth';
 import prisma from '@/lib/db';
-import { sleep } from '@/lib/utils';
 import { authSchema, petFormSchema, petIdSchema } from '@/lib/validations';
 import { revalidatePath } from 'next/cache';
 import bcrypt from 'bcryptjs';
@@ -15,8 +14,6 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 // --- user actions ---
 export async function logIn(prevState: unknown, formData: unknown) {
-  await sleep(1000);
-
   if (!(formData instanceof FormData)) {
     return {
       message: 'Invalid form data',
@@ -45,13 +42,10 @@ export async function logIn(prevState: unknown, formData: unknown) {
 }
 
 export async function logOut() {
-  await sleep(1000);
   await signOut({ redirectTo: '/' });
 }
 
 export async function signUp(prevState: unknown, formData: unknown) {
-  await sleep(1000);
-
   if (!(formData instanceof FormData)) {
     return {
       message: 'Invalid form data',
@@ -88,8 +82,6 @@ export async function signUp(prevState: unknown, formData: unknown) {
 // --- pet actions
 
 export async function addPet(petData: unknown) {
-  await sleep(1000);
-
   const session = await checkAuth();
   const validatedPetData = petFormSchema.safeParse(petData);
   if (!validatedPetData.success) {
@@ -117,8 +109,6 @@ export async function addPet(petData: unknown) {
 }
 
 export async function editPet(petId: unknown, petData: unknown) {
-  await sleep(1000);
-
   const session = await checkAuth();
 
   const validatedPetId = petIdSchema.safeParse(petId);
@@ -159,8 +149,6 @@ export async function editPet(petId: unknown, petData: unknown) {
 }
 
 export async function deletePet(petId: unknown) {
-  await sleep(1000);
-
   const session = await checkAuth();
 
   const validatedPetId = petIdSchema.safeParse(petId);

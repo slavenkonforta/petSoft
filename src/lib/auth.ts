@@ -66,11 +66,10 @@ const config = {
         return NextResponse.redirect(new URL('/app/dashboard', request.nextUrl));
       }
 
-      if (isLoggedIn && !isTryingToAccessApp) {
+      if (isLoggedIn && !isTryingToAccessApp && !auth?.user.hasAccess) {
         if (
-          (request.nextUrl.pathname.includes('/login') ||
-            request.nextUrl.pathname.includes('/signup')) &&
-          !auth?.user.hasAccess
+          request.nextUrl.pathname.includes('/login') ||
+          request.nextUrl.pathname.includes('/signup')
         ) {
           return NextResponse.redirect(new URL('/payment', request.nextUrl));
         }
